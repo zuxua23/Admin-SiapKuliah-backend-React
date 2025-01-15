@@ -37,5 +37,42 @@ namespace Admin_SiapKuliah_backend.Controllers
             }
             catch { return BadRequest(); }
         }
+
+        [HttpGet("{fileName}")]
+        public IActionResult GetFile(string fileName)
+        {
+            // Tentukan path lengkap untuk file yang diminta
+            string filePath = Path.Combine(hostingEnvironment.WebRootPath, "Uploads", fileName);
+
+            // Cek apakah file ada
+            if (!System.IO.File.Exists(filePath))
+            {
+                return NotFound("File tidak ditemukan.");
+            }
+
+            // Menentukan MIME type sesuai dengan ekstensi file
+            var fileExtension = Path.GetExtension(fileName).ToLower();
+            string mimeType = GetMimeType(fileExtension);
+
+            // Membuka file sebagai FileStream
+            var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+
+            // Mengembalikan file sebagai respons dengan dukungan Range Requests
+            Response.Headers.Add("Accept-Ranges", "bytes"); // Menginformasikan dukungan Range
+            return File(stream, mimeType, enableRangeProcessing: true);
+        }
+
+        private string GetMimeType(string fileExtension)
+        {
+            switch (fileExtension)
+            {
+                case ".mp4": return "video/mp4";
+                case ".jpg":
+                case ".jpeg": return "image/jpeg";
+                case ".png": return "image/png";
+                case ".pdf": return "application/pdf";
+                default: return "application/octet-stream"; // Default MIME type
+            }
+        }
     }
 }

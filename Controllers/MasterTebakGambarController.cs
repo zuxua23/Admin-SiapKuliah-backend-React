@@ -118,5 +118,20 @@ namespace Admin_SiapKuliah_backend.Controllers
                 return BadRequest();
             }
         }
+        [HttpPost]
+        public IActionResult GetActivetTebak([FromBody] dynamic data)
+        {
+            try
+            {
+                JObject value = JObject.Parse(data.ToString());
+                dt = lib.CallProcedure("skh_getTebakGambar", EncodeData.HtmlEncodeObject(value));
+                return Ok(JsonConvert.SerializeObject(dt));
+            }
+            catch
+            {
+
+                return BadRequest();
+            }
+        }
     }
 }
